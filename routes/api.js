@@ -9,9 +9,9 @@ router.get(`/weather`, function(req, res, next) {
     const d3n = new D3Node({d3Module: d3, selector: '#chart',  container: '<div id="chart"></div>'}); // initializes D3 with container element
     const svgParent = d3n.createSVG(100, 100);
 
-    const margin = {top: 20, right: 20, bottom: 30, left: 30};
+    const margin = {top: 30, right: 20, bottom: 20, left: 0};
     const fullWidth = 1200;
-    const fullHeight = 600;
+    const fullHeight = 400;
     const width = fullWidth - margin.left - margin.right;
     const height = fullHeight - margin.top - margin.bottom;
 
@@ -34,7 +34,9 @@ router.get(`/weather`, function(req, res, next) {
                 .domain([yExtent[0] - 5, yExtent[1]])
                 .range([height, 0]);
 
-            let yAxis = d3.axisLeft(yScale);
+            let yAxis = d3.axisRight(yScale)
+                .tickSize(width)
+                .ticks(3);
             svg.call(yAxis);
 
             let xScale = d3.scaleTime()
@@ -56,8 +58,7 @@ router.get(`/weather`, function(req, res, next) {
                 .attr('r', 5)
                 .attr('cx', d => xScale(d.time))
                 .attr('cy', height)
-                .attr('data-cy', d => yScale(d.temp))
-                .style('fill', 'steelblue');
+                .attr('data-cy', d => yScale(d.temp));
 
             svg.append('path')
                 .attr('data-d', () => {
@@ -74,10 +75,10 @@ router.get(`/weather`, function(req, res, next) {
 
                     return line(data);
                 })
-                .classed('path', true)
-                .style('stroke', (d, i) => ['#fa3', '#96b'][i])
-                .style('stroke-width', 2)
-                .style('fill', 'steelblue');
+                .classed('path', true);
+                // .style('stroke', (d, i) => ['#fa3', '#96b'][i])
+                // .style('stroke-width', 2)
+                // .style('fill', 'steelblue');
 
             res.send(d3n.chartHTML());
         })
