@@ -3,6 +3,7 @@ const router = express.Router();
 const D3Node = require('d3-node');
 const d3 = require('d3');
 const DataSource = require('./../bin/DataSource');
+const _ = require('lodash');
 
 router.get(`/weather`, function(req, res, next) {
     const d3n = new D3Node({d3Module: d3, selector: '#chart',  container: '<div id="chart"></div>'}); // initializes D3 with container element
@@ -20,7 +21,7 @@ router.get(`/weather`, function(req, res, next) {
             const formatTime = d3.timeFormat('%d-%b');
             const line = d3.line()
                 .x(d => xScale(d.time))
-                .y(d => yScale(d.temp));
+                .y(d => d.temp ? yScale(d.temp) : height);
 
             let svg = svgParent
                 .attr('width', width + margin.left + margin.right)
@@ -54,16 +55,26 @@ router.get(`/weather`, function(req, res, next) {
                 .append('circle')
                 .attr('r', 5)
                 .attr('cx', d => xScale(d.time))
-                .attr('cy', d => yScale(d.temp))
+                .attr('cy', height)
+                .attr('data-cy', d => yScale(d.temp))
                 .style('fill', 'steelblue');
 
-            svg
-                .append('path')
-                .attr('d', () => {
+            svg.append('path')
+                .attr('data-d', () => {
                     data.unshift({temp: yScale.domain()[0], time: data[0].time});
                     data.push({temp: yScale.domain()[0], time: data[data.length - 1].time});
+
                     return line(data);
                 })
+                .attr('d', () => {
+                    _.map(data, (d) => {
+                        d.temp = null;
+                        return d
+                    });
+
+                    return line(data);
+                })
+                .classed('path', true)
                 .style('stroke', (d, i) => ['#fa3', '#96b'][i])
                 .style('stroke-width', 2)
                 .style('fill', 'steelblue');
