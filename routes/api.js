@@ -36,7 +36,7 @@ router.get(`/weather/:city`, function(req, res, next) {
             // let yExtent = d3.extent(data, d => d.temp);
             let yScale = d3.scaleLinear()
                 // .domain([yExtent[0] - 5, yExtent[1]])
-                .domain([0, 30])
+                .domain([0, 35])
                 .range([height, 0]);
 
             let yAxis = d3.axisRight(yScale)
