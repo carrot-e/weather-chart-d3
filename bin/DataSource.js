@@ -2,8 +2,12 @@ const axios = require('axios');
 const _ = require('lodash');
 
 class DataSource {
+    constructor(city) {
+        this.city = city;
+    }
+
     get() {
-        return axios.get('http://api.wunderground.com/api/ed044d75b91fb500/hourly10day/q/CA/Kiev.json')
+        return axios.get(`http://api.wunderground.com/api/ed044d75b91fb500/hourly10day/q/CA/${this.city}.json`)
         // return axios.get('http://api.wunderground.com/api/ed044d75b91fb500/hourly/q/CA/Kiev.json')
             .then(data => {
                 return _.map(data.data.hourly_forecast,

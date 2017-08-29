@@ -1,6 +1,12 @@
 extends layout
 block content
     #container
+    #container-hidden.container-hidden
     .details
         p weather forecast for #{from} - #{to}
-        h1 Kyiv, Ukraine
+        select#switcher
+            option(value="Kiev") Kyiv, Ukraine
+            option(value="Kharkiv") Kharkiv, Ukraine
+            option(value="Odesa") Odesa, Ukraine
+            option(value="L'viv") Lviv, Ukraine
+            option(value="Larnaca") Larnaca, Cyprus

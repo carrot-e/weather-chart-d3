@@ -5,7 +5,7 @@ const d3 = require('d3');
 const DataSource = require('./../bin/DataSource');
 const _ = require('lodash');
 
-router.get(`/weather`, function(req, res, next) {
+router.get(`/weather/:city`, function(req, res, next) {
     const d3n = new D3Node({d3Module: d3, selector: '#chart',  container: '<div id="chart"></div>'}); // initializes D3 with container element
     const svgParent = d3n.createSVG(100, 100);
 
@@ -15,13 +15,17 @@ router.get(`/weather`, function(req, res, next) {
     const width = fullWidth - margin.left - margin.right;
     const height = fullHeight - margin.top - margin.bottom;
 
-    const ds = new DataSource();
+    const ds = new DataSource(req.params.city);
     return ds.get()
-        .then((data) => {
+        .then(data => {
             const formatTime = d3.timeFormat('%d-%b');
             const line = d3.line()
                 .x(d => xScale(d.time))
-                .y(d => d.temp ? yScale(d.temp) : height);
+                .y(d => yScale(d.temp));
+
+            const linePlaceholder = d3.line()
+                .x(d => xScale(d.time))
+                .y(height);
 
             let svg = svgParent
                 .attr('width', width + margin.left + margin.right)
@@ -29,9 +33,10 @@ router.get(`/weather`, function(req, res, next) {
                 .append('g')
                 .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
-            let yExtent = d3.extent(data, d => d.temp);
+            // let yExtent = d3.extent(data, d => d.temp);
             let yScale = d3.scaleLinear()
-                .domain([yExtent[0] - 5, yExtent[1]])
+                // .domain([yExtent[0] - 5, yExtent[1]])
+                .domain([0, 30])
                 .range([height, 0]);
 
             let yAxis = d3.axisRight(yScale)
@@ -61,24 +66,19 @@ router.get(`/weather`, function(req, res, next) {
                 .attr('data-cy', d => yScale(d.temp));
 
             svg.append('path')
+                .attr('data-d', () => line(data))
+                .attr('d', () => linePlaceholder(data))
+                .classed('path', true);
+
+            svg.append('path')
                 .attr('data-d', () => {
                     data.unshift({temp: yScale.domain()[0], time: data[0].time});
                     data.push({temp: yScale.domain()[0], time: data[data.length - 1].time});
 
                     return line(data);
                 })
-                .attr('d', () => {
-                    _.map(data, (d) => {
-                        d.temp = null;
-                        return d
-                    });
-
-                    return line(data);
-                })
-                .classed('path', true);
-                // .style('stroke', (d, i) => ['#fa3', '#96b'][i])
-                // .style('stroke-width', 2)
-                // .style('fill', 'steelblue');
+                .attr('d', () => linePlaceholder(data))
+                .classed('area', true);
 
             res.send(d3n.chartHTML());
         })
