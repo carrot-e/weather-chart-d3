@@ -1,3 +1,7 @@
+$base-color: #4ECDC4
+$lighten-color: lighten($base-color, 25%)
+$darken-color: darken($base-color, 25%)
+
 *
   padding: 0
   margin: 0
@@ -11,7 +15,7 @@ body
   display: none
 
 svg
-  background-color: #3CC4A6
+  background-color: $base-color
 
   text, circle
     fill: #FFF
@@ -24,17 +28,34 @@ svg
     stroke-width: 2
 
   .area
-    fill: rgba(#91CFC3, .5)
+    fill: rgba($lighten-color, .5)
+
+  .circle-group text
+    text-anchor: middle
+    opacity: 0
+    display: none
+    fill: $darken-color
+    font: 16px Dosis, Helvetica, Arial, sans-serif
+
+
+  .circle-group circle:hover
+    stroke: $darken-color
+    stroke-width: 2px
+
+    + text
+      opacity: 1
+      display: initial
+
 
 
 select
   background: transparent
-  font: 60px Dosis, Helvetica, Arial, sans-serif
+  font: 40px Dosis, Helvetica, Arial, sans-serif
   border: none
   outline: none
 
 p
-  color: #91CFC3
+  color: $base-color
 
 .details
   margin-top: 60px

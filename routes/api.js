@@ -18,7 +18,8 @@ router.get(`/weather/:city`, function(req, res, next) {
     const ds = new DataSource(req.params.city);
     return ds.get()
         .then(data => {
-            const formatTime = d3.timeFormat('%d-%b');
+            const formatDate = d3.timeFormat('%d-%b');
+            const formatTime = d3.timeFormat('%d-%b %H:%M');
             const line = d3.line()
                 .x(d => xScale(d.time))
                 .y(d => yScale(d.temp));
@@ -50,20 +51,31 @@ router.get(`/weather/:city`, function(req, res, next) {
 
             let xAxis = d3.axisBottom(xScale)
                 .ticks(d3.timeHour.every(24))
-                .tickFormat(d => formatTime(d));
+                .tickFormat(d => formatDate(d));
             svg.append('g')
                 .attr('transform', `translate(0, ${height})`)
                 .call(xAxis);
 
 
-            svg.selectAll('circle')
+            let circlesBase = svg.append('g')
+                .classed('circles', true)
+                .attr('transform', `translate(0, ${height})`)
+                .selectAll('.circle-group')
                 .data(data)
                 .enter()
-                .append('circle')
-                .attr('r', 5)
-                .attr('cx', d => xScale(d.time))
-                .attr('cy', height)
-                .attr('data-cy', d => yScale(d.temp));
+                .append('g')
+                    .classed('circle-group', true)
+                    .attr('transform', d => `translate(${xScale(d.time)})`)
+                    .attr('data-transform', d => `translate(${xScale(d.time)}, ${yScale(d.temp) - height})`);
+
+            circlesBase.append('circle')
+                    .attr('r', 3);
+
+            circlesBase.append('text')
+                .text(d => `${d.temp}°C on ${formatTime(d.time)}`)
+                .attr('transform', 'translate(0, -10)');
+
+
 
             svg.append('path')
                 .attr('data-d', () => line(data))

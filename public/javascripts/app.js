@@ -50,16 +50,23 @@
                         .html(data.data)
                         .select('svg')
                         .call(responsivefy);
+
+                    d3.select('.circles').raise();
+
+                    d3.selectAll('.circle-group')
+                        .on('mouseover', function() {
+                            d3.select(this).raise();
+                        });
                 }
                 hiddenContainer
                     .html(data.data);
 
                 d3.select('#container')
-                    .selectAll('circle')
+                    .selectAll('.circle-group')
                     .transition()
                     .duration(duration)
-                    .attr('cy', function(d, i) {
-                        return hiddenContainer.select(`circle:nth-of-type(${i + 1})`).attr('data-cy');
+                    .attr('transform', function(d, i) {
+                        return hiddenContainer.select(`.circle-group:nth-of-type(${i + 1})`).attr('data-transform');
                     });
 
                 d3.select('.path')
